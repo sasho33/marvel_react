@@ -3,7 +3,7 @@ import mjolnir from '../../resources/img/mjolnir.png';
 import { Component } from 'react';
 import MarvelService from '../../services/MarvelService';
 import ErrorMessage from '../errorMessage/ErrorMessage';
-import Spinner from '../spinner/Spinner';
+import Spinner from '../spinner/spinner';
 
 class RandomChar extends Component {
   //   constructor(props) {
@@ -27,6 +27,10 @@ class RandomChar extends Component {
     this.setState({ char, loading: false });
   };
 
+  onCharLoading = () => {
+    this.setState({ loading: true });
+  };
+
   //
   onError = (error) => {
     this.setState({ loading: false, error: true });
@@ -34,6 +38,7 @@ class RandomChar extends Component {
 
   updateChar = () => {
     const id = Math.floor(Math.random() * (1011400 - 1011000) + 1011000);
+    this.onCharLoading();
 
     this.marvelService.getCharachter(id).then(this.onCharLoaded).catch(this.onError);
   };
