@@ -32,7 +32,7 @@ class MarvelService {
     return res.data.results.map(this._transformComics);
   };
 
-  getComics = async (id) => {
+  getComic = async (id) => {
     const res = await this.getResource(`${this._apiBase}comics/${id}?${this._apiKey}`);
     return this._transformComics(res.data.results[0]);
   };

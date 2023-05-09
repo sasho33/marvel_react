@@ -1,27 +1,76 @@
+import { useParams, Link } from 'react-router-dom';
+import { useEffect, useState } from 'react';
 import './singleComicPage.scss';
 import xMen from '../../resources/img/x-men.png';
+import MarvelService from '../../services/MarvelService';
+import Spinner from '../spinner/spinner';
+import ErrorMessage from '../errorMessage/ErrorMessage';
 
-const SingleComic = () => {
-  return (
-    <div className="single-comic">
-      <img src={xMen} alt="x-men" className="single-comic__img" />
-      <div className="single-comic__info">
-        <h2 className="single-comic__name">X-Men: Days of Future Past</h2>
-        <p className="single-comic__descr">
-          Re-live the legendary first journey into the dystopian future of 2013 - where Sentinels
-          stalk the Earth, and the X-Men are humanity's only hope...until they die! Also featuring
-          the first appearance of Alpha Flight, the return of the Wendigo, the history of the X-Men
-          from Cyclops himself...and a demon for Christmas!?
-        </p>
-        <p className="single-comic__descr">144 pages</p>
-        <p className="single-comic__descr">Language: en-us</p>
-        <div className="single-comic__price">9.99$</div>
+const SingleComicPage = () => {
+  const { comicId } = useParams();
+  const [comic, setComic] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+
+  const marvelService = new MarvelService();
+
+  useEffect(() => {
+    updateComic();
+  }, [comicId]);
+
+  const updateComic = () => {
+    if (!comicId) {
+      return;
+    }
+    onComicLoading();
+    marvelService.getComic(comicId).then(onComicLoaded).catch(onError);
+  };
+
+  const onComicLoaded = (comic) => {
+    setLoading(false);
+    setComic(comic);
+  };
+
+  const onComicLoading = () => {
+    setLoading(true);
+  };
+
+  const onError = () => {
+    setError(true);
+    setLoading(false);
+  };
+
+  const View = ({ comic }) => {
+    const { title, description, pageCount, thumbnail, language, price } = comic;
+
+    return (
+      <div className="single-comic">
+        <img src={thumbnail} alt={title} className="single-comic__img" />
+        <div className="single-comic__info">
+          <h2 className="single-comic__name">{title}</h2>
+          <p className="single-comic__descr">{description}</p>
+          <p className="single-comic__descr">{pageCount} pages</p>
+          <p className="single-comic__descr">Language: {language}</p>
+          <div className="single-comic__price">{price}$</div>
+        </div>
+        <Link to={'/comics/'}>
+          <div className="single-comic__back">Back to all</div>
+        </Link>
       </div>
-      <a href="#" className="single-comic__back">
-        Back to all
-      </a>
-    </div>
+    );
+  };
+
+  const errorMessage = error ? <ErrorMessage /> : null;
+  const spinner = loading ? <Spinner /> : null;
+  const content = !(loading || error || !comic) ? <View comic={comic} /> : null;
+
+  return (
+    <>
+      {errorMessage}
+      {spinner}
+      {content}
+    </>
   );
 };
 
-export default SingleComic;
+export default SingleComicPage;
